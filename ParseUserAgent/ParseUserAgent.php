@@ -58,8 +58,13 @@ class infoRequest
         if ($ip_info != null && $ip_info->geoplugin_countryName != null) {
             $infoIP = [
                 'ip' => $ipSelf,
-                'country' => $ip_info->geoplugin_countryName,
-                'Ccode' => $ip_info->geoplugin_countryCode,
+                'countryName' => $ip_info->geoplugin_countryName,
+                'countryCode' => $ip_info->geoplugin_countryCode,
+                "timeZone" => $ip_info->geoplugin_timezone,
+                "regionCode" => $ip_info->geoplugin_regionCode,
+                "continentName" => $ip_info->geoplugin_continentName,
+                "currencyCode" => $ip_info->geoplugin_currencyCode,
+                "currencySymbol" => $ip_info->geoplugin_currencySymbol,
                 'lat' => $ip_info->geoplugin_latitude,
                 'lng' => $ip_info->geoplugin_longitude,
             ];
