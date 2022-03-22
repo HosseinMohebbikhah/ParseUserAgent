@@ -36,6 +36,7 @@ class infoRequest
         $infoIP = null;
         $infoDevice = null;
         $infoRequest = null;
+        $infoRegion = null;
 
         //Get info request
         $dailyVisit = false;
@@ -48,25 +49,30 @@ class infoRequest
         $infoRequest = ["dailyVisits" => $dailyVisit, "lastVisit" => $_COOKIE["lastVisit"]];
 
         //Get info IP
-        $ip_info = null;
-        if ($ipSelf != "127.0.0.1")
-            $ip_info = @json_decode(file_get_contents("http://www.geoplugin.net/json.gp?ip=" . $ipSelf));
-        else
-            //Details for localHost
-            $ip_info = json_decode(json_encode(["geoplugin_countryName" => "Iran", "geoplugin_countryCode" => "IR", "geoplugin_latitude" => "35.6892", "geoplugin_longitude" => "51.3890"]));
+        $ip_info = @json_decode(file_get_contents("http://www.geoplugin.net/json.gp?ip=" . $ipSelf));
+        $region_info = @json_decode(file_get_contents("https://ip-api.io/json/" . $ipSelf));
+
+        //Get info region
+        $infoRegion = [
+            "continentName" => $ip_info->geoplugin_continentName,
+            'countryName' => $ip_info->geoplugin_countryName,
+            'countryCode' => $ip_info->geoplugin_countryCode,
+            "city" => $region_info->city,
+            "callingCode" => $region_info->callingCode,
+            "timeZone" => $ip_info->geoplugin_timezone,
+            "zipCode" => $region_info->zip_code,
+            "flagURL" => $region_info->flagUrl,
+            "regionCode" => $ip_info->geoplugin_regionCode,
+            "currencyCode" => $ip_info->geoplugin_currencyCode,
+            "currencySymbol" => $region_info->currencySymbol,
+            'lat' => $ip_info->geoplugin_latitude,
+            'lng' => $ip_info->geoplugin_longitude,
+        ];
 
         if ($ip_info != null && $ip_info->geoplugin_countryName != null) {
             $infoIP = [
                 'ip' => $ipSelf,
-                'countryName' => $ip_info->geoplugin_countryName,
-                'countryCode' => $ip_info->geoplugin_countryCode,
-                "timeZone" => $ip_info->geoplugin_timezone,
-                "regionCode" => $ip_info->geoplugin_regionCode,
-                "continentName" => $ip_info->geoplugin_continentName,
-                "currencyCode" => $ip_info->geoplugin_currencyCode,
-                "currencySymbol" => $ip_info->geoplugin_currencySymbol,
-                'lat' => $ip_info->geoplugin_latitude,
-                'lng' => $ip_info->geoplugin_longitude,
+                "type" => filter_var($ipSelf, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4) ? "IPv4" : "IPv6",
             ];
             $infoDevice = [
                 'browser' => $detailUserAgent->browserName == '' ? 'Null' : $detailUserAgent->browserName,
@@ -81,7 +87,7 @@ class infoRequest
                 'isTablet' => self::$isTablet,
                 'isMobile' => self::$isMobile,
             ];
-        } else {
+        } else if (isset(getallheaders()["User-Agent"])) {
             $infoDevice = [
                 'browser' => $detailUserAgent->browserName == '' ? 'Null' : $detailUserAgent->browserName,
                 'vBrowser' => $detailUserAgent->browserVersion == '' ? 'Null' : $detailUserAgent->browserVersion,
@@ -93,7 +99,7 @@ class infoRequest
                 'isMac' => self::$isMac,
             ];
         }
-        return json_encode(["infoRequest" => $infoRequest, "infoIP" => $infoIP, "infoDevice" => $infoDevice]);
+        return json_encode(["infoRequest" => $infoRequest, "infoRegion" => $infoRegion, "infoIP" => $infoIP, "infoDevice" => $infoDevice]);
     }
 
     private static function getIpAddress()
@@ -264,7 +270,6 @@ class UserAgent
                     self::$browserVersion = isset($theGym[5]) ? $theGym[5] : (isset($theGym[3]) ? $theGym[3] : $theGym[2]);
                     self::$systemString = isset($theGym[4]) ? $theGym[4] : (isset($theGym[1]) ? $theGym[1] : '');
                 } else if (preg_match('/(?:\((.+?)\).+?AppleWebKit\/([\d\.\w]+))|AppleWebKit\/([\d\.\w]+).+?\((.+?)\)(?:(?=.*Version\/).+?Version\/([\d\w\.]+)|.*?)/i', self::$string, $theGym)) {
-                    //TODO
                     self::$browserName = 'AppleWebKit';
                     self::$browserVersion = $theGym[2];
                     self::$systemString = $theGym[1];
