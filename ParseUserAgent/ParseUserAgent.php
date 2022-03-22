@@ -60,6 +60,9 @@ class infoRequest
                 'isWindows' => self::$isWindows,
                 'isLinux' => self::$isLinux,
                 'isMac' => self::$isMac,
+                'isDesktop' => self::$isDesktop,
+                'isTablet' => self::$isTablet,
+                'isMobile' => self::$isMobile,
             ];
         } else {
             $infoDevice = [
