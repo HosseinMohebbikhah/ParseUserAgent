@@ -7,6 +7,7 @@ class infoRequest
     public static $isDesktop = false;
     public static $isTablet = false;
     public static $isMobile = false;
+    //
     public static $isAndroid = false;
     public static $isIOS = false;
     public static $isWindows = false;
@@ -32,6 +33,20 @@ class infoRequest
         self::$isTablet = $detailUserAgent->isTablet;
         self::$isMobile = $detailUserAgent->isMobile;
 
+        $infoIP = null;
+        $infoDevice = null;
+        $infoRequest = null;
+
+        //Get info request
+        $dailyVisit = false;
+        if (!isset($_COOKIE["dailyVisits"])) {
+            $dailyVisit = false;
+            $dailyVisit = setcookie("dailyVisits", true, time() + (86400 * 30));
+        } else
+            $dailyVisit = true;
+        setcookie("lastVisit", date("Y-m-d H:mm:s"));
+        $infoRequest = ["dailyVisits" => $dailyVisit, "lastVisit" => $_COOKIE["lastVisit"]];
+
         //Get info IP
         $ip_info = null;
         if (!$ipSelf == "127.0.0.1")
@@ -40,8 +55,6 @@ class infoRequest
             //Details for localHost
             $ip_info = json_decode(json_encode(["geoplugin_countryName" => "Iran", "geoplugin_countryCode" => "IR", "geoplugin_latitude" => "35.6892", "geoplugin_longitude" => "51.3890"]));
 
-        $infoIP = null;
-        $infoDevice = null;
         if ($ip_info != null && $ip_info->geoplugin_countryName != null) {
             $infoIP = [
                 'ip' => $ipSelf,
@@ -75,7 +88,7 @@ class infoRequest
                 'isMac' => self::$isMac,
             ];
         }
-        return json_encode(["infoIP" => $infoIP, "infoDevice" => $infoDevice]);
+        return json_encode(["infoRequest" => $infoRequest, "infoIP" => $infoIP, "infoDevice" => $infoDevice]);
     }
 
     private static function getIpAddress()
