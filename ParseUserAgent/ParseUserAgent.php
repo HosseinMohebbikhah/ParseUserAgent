@@ -49,7 +49,7 @@ class infoRequest
 
         //Get info IP
         $ip_info = null;
-        if (!$ipSelf == "127.0.0.1")
+        if ($ipSelf != "127.0.0.1")
             $ip_info = @json_decode(file_get_contents("http://www.geoplugin.net/json.gp?ip=" . $ipSelf));
         else
             //Details for localHost
