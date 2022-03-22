@@ -7,7 +7,6 @@ class infoRequest
     public static $isDesktop = false;
     public static $isTablet = false;
     public static $isMobile = false;
-    //
     public static $isAndroid = false;
     public static $isIOS = false;
     public static $isWindows = false;
